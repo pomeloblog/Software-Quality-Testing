@@ -12,3 +12,4 @@ out/
 *.log
 logs/
 tmp/
+web/WEB-INF/classes/
