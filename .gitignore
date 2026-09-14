@@ -1,0 +1,14 @@
+# IDE
+.idea/
+*.iml
+out/
+.DS_Store
+
+# 编译产物
+*.class
+*.war
+
+# 日志与临时文件
+*.log
+logs/
+tmp/
