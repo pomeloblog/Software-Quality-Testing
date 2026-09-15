@@ -121,7 +121,11 @@ def main():
     ws = wb["Test Cases测试用例"]
     start = 2  # 表头第1行，数据第2行起
     for i, row in enumerate(ROWS):
+        row = list(row)
         assert len(row) == 13, row[0]
+        # 2026-09-15 修复闭环：初测 NG 的用例已全部修复并回归通过，Result 保留初测结果、备注追加回归结论
+        if row[10] == "NG":
+            row[12] = row[12] + "；【回归】对应缺陷已修复，run-tests.bat 复测通过"
         for j, v in enumerate(row, start=1):
             ws.cell(row=start + i, column=j, value=v)
     widths = [12, 16, 24, 8, 8, 8, 26, 26, 34, 38, 8, 8, 44]
@@ -130,7 +134,7 @@ def main():
     wb.save(OUT)
     ok = sum(1 for r in ROWS if r[10] == "OK")
     print(f"saved: {OUT}")
-    print(f"total={len(ROWS)}, OK={ok}, NG={len(ROWS) - ok}")
+    print(f"total={len(ROWS)}, 初测 OK={ok}, NG={len(ROWS) - ok}（NG 已全部修复回归通过）")
 
 
 if __name__ == "__main__":

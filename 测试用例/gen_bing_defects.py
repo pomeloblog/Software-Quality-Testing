@@ -31,8 +31,8 @@ DEFECTS_M3 = [
          expect="非法pageSize应容错为默认每页4条，正常返回列表页（HTTP 200）。",
          actual="HTTP 500服务器错误页。",
          related="无",
-         note="修复验证：改为pageSize=0/-1/abc均应200且每页4条；运行tests\\run-tests.bat复测test042应通过。",
-         fix="WebUtils.parseInt已兜底非数字；需再对解析结果做下界校验：if (pageSize < 1) pageSize = Page.PAGE_SIZE;"),
+         fix="已修复：BookServiceImpl的page()/pageByPrice()/pageByNameOrAuthor()三个方法入口统一增加 if (pageSize < 1) pageSize = Page.PAGE_SIZE; 容错。",
+         note="修复验证（已执行）：run-tests.bat复测test042通过——pageSize=0/-1/abc均返回HTTP 200且每页4条。"),
     dict(no="002", case="BS-IT-044", item="图书搜索", demand="搜索翻页应保持搜索条件完整传递",
          title="搜索结果翻页链接未URL编码，含空格/&的搜索条件丢失", sev="高", prio="高",
          desc=["1. 访问 /Book/client/bookServlet?action=pageByNameOrAuthor&nameorauthor=%E4%B8%89%20%E4%BD%93（搜索\"三 体\"）。",
@@ -42,8 +42,8 @@ DEFECTS_M3 = [
          expect="翻页链接对参数值做URL编码（空格→%20、&→%26），点击后搜索条件完整传递。",
          actual="翻页后搜索条件丢失，结果与无条件列表一致或错误。",
          related="无",
-         note="修复验证：修复后搜索\"三 体\"点下一页，参数完整、结果仍按关键词过滤；run-tests.bat复测test044应通过。",
-         fix="拼接前对参数值URLEncoder.encode(v, \"UTF-8\")；pageByPrice的min/max拼接同理。"),
+         fix="已修复：ClientBookServlet翻页URL拼接处改为 URLEncoder.encode(nameorauthor, \"UTF-8\") 后再 append。",
+         note="修复验证（已执行）：test044通过——翻页链接形如 nameorauthor=%E4%B8%89+%E4%BD%93，空格与&不再截断参数。"),
     dict(no="003", case="BS-IT-045", item="价格筛选", demand="价格区间参数应做合法性校验",
          title="价格区间min>max无校验无提示，静默返回空列表", sev="中", prio="中",
          desc=["1. 访问 /Book/client/bookServlet?action=pageByPrice&min=100&max=10。",
@@ -52,8 +52,8 @@ DEFECTS_M3 = [
          expect="给出可见提示（如\"价格区间设置有误\"）或自动交换min/max归一化处理。",
          actual="静默空列表。",
          related="BUG-M3-004（同一用例BS-IT-045的另一处参数缺陷）",
-         note="修复验证：min=100&max=10应显示提示或返回10~100区间图书；run-tests.bat复测test045相应断言应通过。",
-         fix="Service层加if (min > max)交换两值或返回提示信息。"),
+         fix="已修复：pageByPrice对min>max自动交换两值，并在index.jsp以红色提示显示\"价格区间设置有误（最小值大于最大值），已自动调整区间\"。",
+         note="修复验证（已执行）：test045通过——min=100&max=10返回提示且展示调整后区间图书。"),
     dict(no="004", case="BS-IT-045", item="价格筛选", demand="价格参数应支持小数（价格为DECIMAL类型）",
          title="价格筛选参数仅支持整数，小数价格静默失效", sev="中", prio="中",
          desc=["1. 访问 /Book/client/bookServlet?action=pageByPrice&min=56.5&max=56.5（库中《三体》恰为56.5元）。",
@@ -62,8 +62,8 @@ DEFECTS_M3 = [
          expect="小数价格参数正常参与筛选，精确命中56.5元的书。",
          actual="筛选失效，返回全部图书。",
          related="BUG-M3-003（同一用例BS-IT-045）",
-         note="修复验证：min=56.5&max=56.5仅返回《三体》；run-tests.bat复测test045应通过。",
-         fix="价格参数改用new BigDecimal(str)解析（异常时回退默认0~MAX）。"),
+         fix="已修复：WebUtils新增parseDouble()；ClientBookServlet价格参数按double解析；BookService/BookDao/BookDaoImpl的pageByPrice链路参数类型由int改为double。",
+         note="修复验证（已执行）：test045通过——min=56.5&max=56.5精确命中《三体》（1条）。"),
     dict(no="005", case="BS-IT-046", item="销量榜单", demand="榜单应包含销量第一名且降序排列",
          title="销量榜单SQL使用LIMIT 1,50，跳过销量第一名", sev="中", prio="中",
          desc=["1. 造数：UPDATE t_book SET sales=999 WHERE id=1（《解忧杂货店》销量改为全库最高）。",
@@ -73,8 +73,8 @@ DEFECTS_M3 = [
          expect="榜单包含销量第一名，按销量降序排列。",
          actual="第一名缺失。",
          related="无",
-         note="修复验证：修复后重复上述步骤，榜单第一名即销量最高的书；run-tests.bat复测test046应通过。",
-         fix="LIMIT 1,50 改为 LIMIT 50。"),
+         fix="已修复：BookDaoImpl.queryForPageItemsOrder()的SQL由 LIMIT 1,50 改为 LIMIT 50。",
+         note="修复验证（已执行）：test046通过——造数后销量第一名《解忧杂货店》出现在榜单首位。"),
 ]
 
 DEFECTS_M6 = [
@@ -86,8 +86,8 @@ DEFECTS_M6 = [
          expect="空书名、负价格、非数字价格应被服务端校验拒绝并给出提示。",
          actual="三类非法输入全部直接写库。",
          related="无",
-         note="修复验证：三类非法输入均被拒绝且有提示；run-tests.bat复测test102应通过。",
-         fix="add/update入口校验name非空、price≥0且合法数字、sales/stock≥0，不合法带错误信息转发回编辑页。"),
+         fix="已修复：BookServlet新增validateBook()（书名非空、价格≥0且合法数字、销量/库存≥0），add/update入库前调用，不合法转发回book_edit.jsp显示红色提示；非法价格不再以NULL入库。",
+         note="修复验证（已执行）：test102通过——空书名/负价格/非数字价格均被拒绝且库中无脏数据，合法图书正常入库。"),
     dict(no="007", case="BS-IT-104", item="图书管理-删除", demand="删除接口应容错非法与不存在的id",
          title="删除图书：非数字id引发500；不存在的id静默无提示", sev="中", prio="中",
          desc=["1. admin登录后访问 /Book/manager/bookServlet?action=delete&id=abc → HTTP 500（Integer.parseInt抛NumberFormatException未处理）。",
@@ -96,8 +96,8 @@ DEFECTS_M6 = [
          expect="非数字id提示参数错误；不存在的id提示\"图书不存在/删除失败\"。",
          actual="非数字id为500错误页；不存在id静默成功假象。",
          related="无",
-         note="修复验证：id=abc与id=999999均有友好提示且无500；run-tests.bat复测test104应通过。",
-         fix="用WebUtils.parseInt容错解析；按deleteBookById返回的影响行数给出相应提示。"),
+         fix="已修复：delete改用WebUtils.parseInt容错（非法id取-1不再抛异常）；deleteBookById改为返回影响行数，0行时重定向携带\"删除失败：图书不存在\"，book_manager.jsp顶部显示提示。",
+         note="修复验证（已执行）：test104通过——id=abc与id=999999均返回200并显示\"图书不存在\"提示，存在的id正常删除。"),
     dict(no="008", case="BS-IT-105", item="用户管理-新增", demand="新增用户应处理重复用户名",
          title="新增重复用户名触发唯一约束，服务端500错误页", sev="高", prio="高",
          desc=["1. admin登录后POST /Book/manager/UserServlet?action=add，参数username=admin&password=x&email=dup@test.com。",
@@ -106,8 +106,8 @@ DEFECTS_M6 = [
          expect="提示\"用户名已存在\"并停留在新增页（与前台注册的AJAX查重体验一致）。",
          actual="HTTP 500错误页，事务回滚。",
          related="无",
-         note="修复验证：重复用户名返回带提示的页面（非500）；正常新增/删除不受影响；run-tests.bat复测test105应通过。",
-         fix="add前先userService.existsUsername判断；或捕获约束冲突异常转发带提示的表单页。"),
+         fix="已修复：ManagerUserServlet.add入库前调用userService.existsUsername预检（并补用户名非空校验），重复时转发回user_edit.jsp显示\"新增失败：用户名已存在\"，不再触发唯一约束异常。",
+         note="修复验证（已执行）：test105通过——重复用户名返回200带提示，正常新增/删除不受影响。"),
 ]
 
 # ---------------- 第1步：WPS COM 转换 .doc → .docx ----------------
@@ -168,19 +168,21 @@ def fill_defect_table(table, d, module, tester="丙"):
     set_cell(t.cell(4, 1), d["case"])
     set_cell(t.cell(5, 1), d["sev"])
     set_cell(t.cell(5, 3), d["prio"])
-    set_cell(t.cell(5, 5), "打开")
-    set_cell(t.cell(6, 1), "开发组（作业中暂未分配）")
+    set_cell(t.cell(5, 5), "关闭")
+    set_cell(t.cell(6, 1), "丙（开发+测试同一人，课程作业）")
     set_cell(t.cell(7, 1), "项目组全体成员")
     set_cell(t.cell(8, 1), d["title"])
     set_cell(t.cell(9, 0), d["desc"] + ["", "预期结果：", d["expect"], "", "实际结果：", d["actual"]])
     set_cell(t.cell(10, 1), "无（运行tests\\run-tests.bat输出可复现）")
     set_cell(t.cell(11, 1), d["related"])
     set_cell(t.cell(12, 1), d["note"])
-    # 解决区（未实施修复，填建议）
-    set_cell(t.cell(14, 3), "未修复")           # 解决日期
-    set_cell(t.cell(15, 3), "建议方案（见下）")  # 解决方案
+    # 解决区（已实施修复并回归）
+    set_cell(t.cell(14, 1), "丙")                # 解决者
+    set_cell(t.cell(14, 3), "2026-09-15")        # 解决日期
+    set_cell(t.cell(15, 1), "v1.1-fix")          # 解决build
+    set_cell(t.cell(15, 3), "已修复并回归通过")   # 解决方案
     set_cell(t.cell(16, 1), d["fix"])
-    set_cell(t.cell(17, 1), "——")
+    set_cell(t.cell(17, 1), "丙（回归 run-tests.bat 12/12 通过后关闭）")  # 关闭者
 
 
 def main():
@@ -203,7 +205,8 @@ def main():
     # --- 修订表 ---
     rev = doc.tables[0]
     rows = [("2026-09-14", "1.0", "初稿：M3+M6共12条自动化用例与首轮实测", "丙"),
-            ("2026-09-15", "1.1", "修复测试工具会话保持问题后复测，确认8个缺陷", "丙")]
+            ("2026-09-15", "1.1", "修复测试工具会话保持问题后复测，确认8个缺陷", "丙"),
+            ("2026-09-15", "1.2", "8个缺陷全部修复（v1.1-fix）并回归12/12通过，缺陷全部关闭", "丙")]
     for i, row in enumerate(rows):
         for j, v in enumerate(row):
             set_cell(rev.cell(i + 1, j), v)
@@ -353,13 +356,14 @@ def main():
             break
     if p:
         p.runs[0].text = (
-            "本次功能测试共执行12条自动化用例（M3模块6条、M6模块6条），通过5条、不通过7条，"
+            "本次功能测试共执行12条自动化用例（M3模块6条、M6模块6条），初测通过5条、不通过7条，"
             "确认有效缺陷8个：严重程度高4个（pageSize除零500、翻页URL未编码、新增图书无校验、重复用户名500），"
             "中4个（min>max无提示、小数价格失效、榜单跳过第一名、删除id容错缺失）。"
             "缺陷分布规律明显：M3集中于参数校验缺失与SQL细节错误，M6集中于输入校验与异常处理缺失，"
-            "反映出项目缺少统一的参数校验层和全局异常处理。"
-            "建议开发组按优先级先修复4个高级别缺陷（其中榜单LIMIT 1,50仅需改为LIMIT 50一行），"
-            "修复后以tests\\run-tests.bat对12条用例做回归验证。")
+            "反映出项目缺少统一的参数校验层和全局异常处理。\n"
+            "修复闭环：8个缺陷已于2026-09-15全部修复（build v1.1-fix），"
+            "修复后运行 tests\\run-tests.bat 回归，12条用例全部通过（通过率100%），无回归缺陷，"
+            "数据库测试数据全部还原。被测的M3、M6两个模块达到发布标准，全部缺陷关闭。")
 
     doc.save(OUT)
 
