@@ -15,6 +15,9 @@ rem  list (defect evidence), not a script bug.
 rem ============================================================
 setlocal
 
+rem UTF-8 codepage: JUnit failure messages contain Chinese (-Dfile.encoding=UTF-8)
+chcp 65001 >nul
+
 rem ---- stay inside tests\ ; every path below stays ASCII/relative ----
 cd /d "%~dp0"
 
