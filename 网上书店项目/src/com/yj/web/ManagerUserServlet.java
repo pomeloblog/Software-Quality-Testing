@@ -23,6 +23,19 @@ public class ManagerUserServlet extends BaseServlet {
         int pageNo = WebUtils.parseInt(req.getParameter("pageNo"),0);
         pageNo+=1;
         User user = (User) WebUtils.copyParamToBean(req.getParameterMap(),new User());
+        // 修复 BUG-M6-03：新增前检查用户名唯一性，原直接 insert 触发唯一约束异常返回 500 错误页
+        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
+            req.setAttribute("msg", "新增失败：用户名不能为空");
+            req.setAttribute("user", user);
+            req.getRequestDispatcher("/pages/manager/user_edit.jsp").forward(req, resp);
+            return;
+        }
+        if (userService.existsUsername(user.getUsername())) {
+            req.setAttribute("msg", "新增失败：用户名已存在");
+            req.setAttribute("user", user);
+            req.getRequestDispatcher("/pages/manager/user_edit.jsp").forward(req, resp);
+            return;
+        }
         userService.addUser(user);
         //req.getRequestDispatcher("/manager/bookServlet?action=list").forward(req,resp);
         resp.sendRedirect(req.getContextPath() + "/manager/UserServlet?action=page&pageNo="+pageNo);

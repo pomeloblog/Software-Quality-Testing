@@ -28,6 +28,8 @@
 	</div>
 	
 	<div id="main">
+		<%-- 修复 BUG-M6-02：删除结果提示（删除成功/图书不存在） --%>
+		<div style="color:#c00;padding:5px;">${empty param.msg ? "" : param.msg}</div>
 		<table style="height: 350px">
 			<tr>
 				<td>名称</td>

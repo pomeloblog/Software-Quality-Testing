@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLEncoder;
 
 /**
  * @author yj
@@ -45,7 +46,8 @@ public class ClientBookServlet extends BaseServlet {
 
         StringBuilder sb = new StringBuilder("client/bookServlet?action=pageByNameOrAuthor");
         if(req.getParameter("nameorauthor")!=null) {
-            sb.append("&nameorauthor=").append(req.getParameter("nameorauthor"));
+            // 修复 BUG-M3-02：翻页 URL 中的搜索词必须编码，否则空格/&会截断参数、丢失搜索条件
+            sb.append("&nameorauthor=").append(URLEncoder.encode(req.getParameter("nameorauthor"), "UTF-8"));
         }
         page.setUrl(sb.toString());
         //3、保存Page对象到request域中
@@ -58,8 +60,15 @@ public class ClientBookServlet extends BaseServlet {
         //1、获取请求的参数pageNo和pageSize、min、max
         int pageNo = WebUtils.parseInt(req.getParameter("pageNo"),1);
         int pageSize = WebUtils.parseInt(req.getParameter("pageSize"), Page.PAGE_SIZE);
-        int min = WebUtils.parseInt(req.getParameter("min"),0);
-        int max = WebUtils.parseInt(req.getParameter("max"),Integer.MAX_VALUE);
+        // 修复 BUG-M3-04：价格字段为 DECIMAL，区间参数改按小数解析（原 parseInt 会把 56.5 静默回退为无筛选）
+        double min = WebUtils.parseDouble(req.getParameter("min"),0);
+        double max = WebUtils.parseDouble(req.getParameter("max"),99999999);
+
+        // 修复 BUG-M3-03：min>max 时自动交换区间并给出可见提示，而非静默返回空列表
+        if (min > max) {
+            double t = min; min = max; max = t;
+            req.setAttribute("priceMsg","提示：价格区间设置有误（最小值大于最大值），已自动调整区间");
+        }
 
         //2、调用BookService.page(pageNo,pageSize)方法：返回page对象
         Page<Book> page = bookService.pageByPrice(pageNo,pageSize,min,max);

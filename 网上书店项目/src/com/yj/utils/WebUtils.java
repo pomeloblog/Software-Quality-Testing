@@ -34,4 +34,18 @@ public class WebUtils {
         return n;
     }
 
+    /**
+     * 解析小数参数（如价格），解析失败返回默认值。
+     * 修复 BUG-M3-04：价格字段为 DECIMAL，此前按 int 解析导致小数被静默忽略。
+     */
+    public static double parseDouble(String strDouble,double defaultValue) {
+        double d = 0;
+        try {
+            d = Double.parseDouble(strDouble);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+        return d;
+    }
+
 }

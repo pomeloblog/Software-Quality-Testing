@@ -29,8 +29,9 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void deleteBookById(Integer id) {
-        bookDao.deleteBookById(id);
+    public int deleteBookById(Integer id) {
+        // 修复 BUG-M6-02：返回受影响行数，供 Servlet 判断"图书不存在"并提示
+        return bookDao.deleteBookById(id);
     }
 
     @Override
@@ -46,6 +47,11 @@ public class BookServiceImpl implements BookService {
     @Override
     public Page<Book> page(int pageNo, int pageSize) {
         Page<Book> page = new Page<Book>();
+
+        // 修复 BUG-M3-01：pageSize 非法（<1）时容错为默认值，避免除零/负数 LIMIT 导致 500
+        if (pageSize < 1) {
+            pageSize = Page.PAGE_SIZE;
+        }
 
         //设置每页记录数
         page.setPageSize(pageSize);
@@ -79,8 +85,13 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Page<Book> pageByPrice(int pageNo, int pageSize, int min, int max) {
+    public Page<Book> pageByPrice(int pageNo, int pageSize, double min, double max) {
         Page<Book> page = new Page<Book>();
+
+        // 修复 BUG-M3-01：pageSize 非法（<1）时容错为默认值
+        if (pageSize < 1) {
+            pageSize = Page.PAGE_SIZE;
+        }
 
         //设置每页记录数
         page.setPageSize(pageSize);
@@ -116,6 +127,11 @@ public class BookServiceImpl implements BookService {
     @Override
     public Page<Book> pageByNameOrAuthor(int pageNo, int pageSize, String nameorauthor) {
         Page<Book> page = new Page<Book>();
+
+        // 修复 BUG-M3-01：pageSize 非法（<1）时容错为默认值
+        if (pageSize < 1) {
+            pageSize = Page.PAGE_SIZE;
+        }
 
         //设置每页记录数
         page.setPageSize(pageSize);

@@ -28,6 +28,8 @@
 		</div>
 		
 		<div id="main">
+			<%-- 修复 BUG-M6-01：输入校验失败提示 --%>
+			<div style="color:#c00;padding:5px;">${empty requestScope.msg ? "" : requestScope.msg}</div>
 			<form action="manager/bookServlet" method="post">
 				<input type="hidden" name="pageNo" value="${param.pageNo}">
 				<input type="hidden" name="action" value="${empty param.id ? "add":"update"}"/>

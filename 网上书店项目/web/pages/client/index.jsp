@@ -120,6 +120,9 @@
 
     </div>
 
+    <%-- 修复 BUG-M3-03：价格区间被自动调整时给出可见提示 --%>
+    <div style="color:#c00;padding:5px;text-align:center;">${empty requestScope.priceMsg ? "" : requestScope.priceMsg}</div>
+
     <%@include file="/pages/common/page_nav.jsp"%>
 
 </div>

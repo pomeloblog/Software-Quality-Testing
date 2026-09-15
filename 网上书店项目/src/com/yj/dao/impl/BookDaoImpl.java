@@ -56,14 +56,14 @@ public class BookDaoImpl extends BaseDao implements BookDao {
     }
 
     @Override
-    public Integer queryForPageTotalCountByPrice(int min, int max) {
+    public Integer queryForPageTotalCountByPrice(double min, double max) {
         String sql = "select count(*) from t_book where price between ? and ?";
         Number count = (Number) queryForSingleValue(sql,min,max);
         return count.intValue();
     }
 
     @Override
-    public List<Book> queryForPageItemsByPrice(int begin, int pageSize, int min, int max) {
+    public List<Book> queryForPageItemsByPrice(int begin, int pageSize, double min, double max) {
         String sql = "select * from t_book where price between ? and ? limit ?,?";
         return queryForList(Book.class,sql,min,max,begin,pageSize);
     }
@@ -85,7 +85,8 @@ public class BookDaoImpl extends BaseDao implements BookDao {
 
     @Override
     public List<Book> queryForPageItemsOrder() {
-        String sql = "SELECT * FROM t_book ORDER BY `sales` DESC LIMIT 1,50";
+        // 修复 BUG-M3-05：原 LIMIT 1,50 的偏移量1会跳过销量第一名，改为 LIMIT 50
+        String sql = "SELECT * FROM t_book ORDER BY `sales` DESC LIMIT 50";
         return queryForList(Book.class,sql);
     }
 

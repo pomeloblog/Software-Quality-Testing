@@ -22,9 +22,9 @@ public interface BookDao {
 
     List<Book> queryForPageItems(int begin, int pageSize);
 
-    Integer queryForPageTotalCountByPrice(int min, int max);
+    Integer queryForPageTotalCountByPrice(double min, double max);
 
-    List<Book> queryForPageItemsByPrice(int begin, int pageSize, int min, int max);
+    List<Book> queryForPageItemsByPrice(int begin, int pageSize, double min, double max);
 
     Integer queryForPageTotalCountByNameOrAuthor(String nameorauthor);
 

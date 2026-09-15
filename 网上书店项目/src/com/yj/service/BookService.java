@@ -16,7 +16,8 @@ public interface BookService {
 
     public void updateBook(Book book);
 
-    public void deleteBookById(Integer id);
+    /** 删除图书，返回受影响行数（0=不存在），用于给前端提示。修复 BUG-M6-02。 */
+    public int deleteBookById(Integer id);
 
     public Book queryBookById(Integer id);
 
@@ -24,7 +25,8 @@ public interface BookService {
 
     Page<Book> page(int pageNo, int pageSize);
 
-    Page<Book> pageByPrice(int pageNo, int pageSize, int min, int max);
+    /** 价格为 DECIMAL，区间参数改用 double。修复 BUG-M3-04。 */
+    Page<Book> pageByPrice(int pageNo, int pageSize, double min, double max);
 
     Page<Book> pageByNameOrAuthor(int pageNo, int pageSize, String nameOrAuthor);
 
