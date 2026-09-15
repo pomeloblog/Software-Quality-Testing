@@ -14,3 +14,4 @@ logs/
 tmp/
 **/WEB-INF/classes/
 ~$*
+tests/sources.txt
