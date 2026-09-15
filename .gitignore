@@ -13,3 +13,4 @@ out/
 logs/
 tmp/
 **/WEB-INF/classes/
+~$*
