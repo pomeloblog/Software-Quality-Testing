@@ -1,9 +1,13 @@
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import static org.junit.Assert.*;
 
+/** 按用例编号升序执行，输出与 Excel 清单顺序一致。 */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 /**
  * M6 后台管理 —— 丙负责，共 6 条用例（BS-IT-101 ~ BS-IT-106）。
  * 方法覆盖：场景法（101/103/106 完整管理流程）、等价类法（102/105 合法/非法输入）、边界值法（104 删除目标边界）。

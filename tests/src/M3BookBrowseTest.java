@@ -1,8 +1,12 @@
 import org.junit.AfterClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import static org.junit.Assert.*;
 
+/** 按用例编号升序执行，输出与 Excel 清单顺序一致。 */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 /**
  * M3 图书浏览与检索 —— 丙负责，共 6 条用例（BS-IT-041 ~ BS-IT-046）。
  * 方法覆盖：边界值法（041/042/045）、等价类法（043/045）、缺陷定向验证（044/046）。

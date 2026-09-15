@@ -23,7 +23,23 @@
 tests\run-tests.bat
 ```
 
-脚本做三件事：编译 `src/*.java` → `classes/`；用 JUnitCore 依次运行两个测试类；打印每个用例结果与汇总。
+脚本做三件事：编译 `src/*.java` → `classes/`；用 `RunAllTests`（JUnitCore + RunListener）依次运行两个测试类，**逐条打印每个用例的编号、方法名、OK/NG 与耗时**；末尾输出模块小计与汇总。示例输出：
+
+```
+== M3 图书浏览与检索 (BS-IT-041 ~ 046) ==
+  BS-IT-041  test041_pageNoBoundary               通过 OK     (271 ms)
+  BS-IT-042  test042_pageSizeBoundary             通过 OK     (16 ms)
+  ...
+  -- 小计: 6/6 通过 --
+== M6 后台管理 (BS-IT-101 ~ 106) ==
+  BS-IT-101  test101_managerBookPage              通过 OK     (43 ms)
+  ...
+  -- 小计: 6/6 通过 --
+==================== 汇总 ====================
+  总用例: 12    通过: 12    不通过: 0    通过率: 100%
+```
+
+失败时对应行显示 `不通过 NG`，汇总区列出失败明细（断言信息），脚本退出码为 1。
 
 ## 结果如何对应 Excel 清单
 
