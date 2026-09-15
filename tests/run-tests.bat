@@ -6,7 +6,7 @@ rem  Pre-conditions (see tests/README.md):
 rem    1. Tomcat running with /Book deployed  -> http://localhost:8080/Book/
 rem    2. MySQL running (schema `book`, user bookstore/123456)
 rem
-rem  Test scope (owner: member C / 丙):
+rem  Test scope (owner: member C):
 rem    M3BookBrowseTest  = M3 book browsing/search  (BS-IT-041 ~ 046)
 rem    M6ManagerTest     = M6 backend management    (BS-IT-101 ~ 106)
 rem
